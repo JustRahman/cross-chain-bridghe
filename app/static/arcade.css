@@ -1,0 +1,614 @@
+/* Retro Arcade API Docs - Pac-Man/Space Invaders Style */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    background: #0a0a14;
+    margin: 0;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Retro grid background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.swagger-ui {
+    font-family: 'Press Start 2P', monospace;
+    position: relative;
+    z-index: 1;
+}
+
+/* Hide topbar */
+.swagger-ui .topbar {
+    display: none;
+}
+
+/* Main container */
+.swagger-ui .wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 24px 120px;
+}
+
+/* Info section - Arcade style */
+.swagger-ui .info {
+    margin: 0 0 60px;
+    padding: 40px;
+    background: #1a1a28;
+    border: 4px solid #ffd700;
+    box-shadow:
+        0 0 20px rgba(255, 215, 0, 0.4),
+        inset 0 0 20px rgba(255, 215, 0, 0.1);
+    position: relative;
+}
+
+.swagger-ui .info::before {
+    content: '█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    font-size: 8px;
+    color: #ffd700;
+    opacity: 0.3;
+    letter-spacing: 4px;
+}
+
+.swagger-ui .info .title {
+    font-size: 32px;
+    font-weight: 400;
+    color: #00ff00;
+    margin-bottom: 20px;
+    text-shadow:
+        2px 2px 0 #0a0a14,
+        0 0 10px #00ff00,
+        0 0 20px #00ff00;
+    text-transform: uppercase;
+}
+
+.swagger-ui .info .title small {
+    display: inline-block;
+    background: #ff00ff;
+    color: #0a0a14;
+    padding: 8px 12px;
+    border: 2px solid #ff00ff;
+    font-size: 10px;
+    margin-left: 20px;
+    box-shadow: 0 0 10px #ff00ff;
+    vertical-align: middle;
+}
+
+.swagger-ui .info p {
+    font-size: 11px;
+    color: #00ffff;
+    line-height: 2;
+    max-width: 800px;
+}
+
+/* Hide servers */
+.swagger-ui .scheme-container,
+.swagger-ui .servers {
+    display: none;
+}
+
+/* Section tags - Arcade level headers */
+.swagger-ui .opblock-tag {
+    color: #ffd700;
+    font-size: 16px;
+    font-weight: 400;
+    margin: 60px 0 30px;
+    padding: 16px 20px;
+    background: #1a1a28;
+    border: 3px solid #ffd700;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    position: relative;
+}
+
+.swagger-ui .opblock-tag::before {
+    content: '▶';
+    margin-right: 12px;
+    color: #ff00ff;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+/* Endpoint blocks - Arcade buttons */
+.swagger-ui .opblock {
+    background: #1a1a28;
+    border: 3px solid #444466;
+    border-radius: 0;
+    margin: 0 0 16px 0;
+    box-shadow:
+        4px 4px 0 #0a0a14,
+        0 0 10px rgba(68, 68, 102, 0.3);
+    transition: all 0.1s;
+}
+
+.swagger-ui .opblock:hover {
+    border-color: #00ffff;
+    box-shadow:
+        4px 4px 0 #0a0a14,
+        0 0 20px rgba(0, 255, 255, 0.4);
+    transform: translate(-2px, -2px);
+}
+
+.swagger-ui .opblock.is-open {
+    border-color: #00ffff;
+}
+
+/* Summary section */
+.swagger-ui .opblock-summary {
+    padding: 20px 24px;
+    align-items: center;
+}
+
+/* HTTP method badges - Arcade power-ups */
+.swagger-ui .opblock .opblock-summary-method {
+    background: #ffd700;
+    color: #0a0a14;
+    border: 2px solid #ffd700;
+    border-radius: 0;
+    font-weight: 400;
+    font-size: 10px;
+    padding: 8px 12px;
+    min-width: 70px;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow:
+        2px 2px 0 #0a0a14,
+        0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+    background: #00ff00;
+    border-color: #00ff00;
+    color: #0a0a14;
+    box-shadow:
+        2px 2px 0 #0a0a14,
+        0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+    background: #00ffff;
+    border-color: #00ffff;
+    color: #0a0a14;
+    box-shadow:
+        2px 2px 0 #0a0a14,
+        0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.swagger-ui .opblock.opblock-put .opblock-summary-method {
+    background: #ffa500;
+    border-color: #ffa500;
+    color: #0a0a14;
+    box-shadow:
+        2px 2px 0 #0a0a14,
+        0 0 10px rgba(255, 165, 0, 0.5);
+}
+
+.swagger-ui .opblock.opblock-delete .opblock-summary-method {
+    background: #ff0066;
+    border-color: #ff0066;
+    color: #ffffff;
+    box-shadow:
+        2px 2px 0 #0a0a14,
+        0 0 10px rgba(255, 0, 102, 0.5);
+}
+
+.swagger-ui .opblock.opblock-patch .opblock-summary-method {
+    background: #ff00ff;
+    border-color: #ff00ff;
+    color: #ffffff;
+    box-shadow:
+        2px 2px 0 #0a0a14,
+        0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+/* Endpoint path */
+.swagger-ui .opblock .opblock-summary-path {
+    color: #00ffff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.swagger-ui .opblock .opblock-summary-description {
+    color: #ffd700;
+    font-size: 10px;
+}
+
+/* Expanded content */
+.swagger-ui .opblock-body {
+    background: #14141e;
+    padding: 32px;
+    border-top: 2px solid #444466;
+}
+
+/* Parameters section */
+.swagger-ui .parameters {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 32px;
+}
+
+.swagger-ui .parameters-col_name {
+    font-weight: 400;
+    color: #00ff00;
+    font-size: 10px;
+}
+
+.swagger-ui .parameters-col_description {
+    color: #00ffff;
+    font-size: 10px;
+}
+
+/* Tables */
+.swagger-ui table {
+    background: transparent;
+}
+
+.swagger-ui table thead tr th {
+    color: #ffd700;
+    font-weight: 400;
+    font-size: 10px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #444466;
+    background: transparent;
+    padding: 12px 16px;
+}
+
+.swagger-ui table tbody tr {
+    border-bottom: 1px solid #444466;
+}
+
+.swagger-ui table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.swagger-ui table tbody tr td {
+    color: #00ffff;
+    border: none;
+    padding: 16px;
+    font-size: 10px;
+}
+
+.swagger-ui .parameter__name {
+    color: #00ff00;
+    font-weight: 400;
+    font-size: 11px;
+}
+
+.swagger-ui .parameter__type {
+    color: #ff00ff;
+    font-size: 9px;
+    font-weight: 400;
+}
+
+/* Buttons - Arcade style */
+.swagger-ui .btn {
+    border-radius: 0;
+    font-weight: 400;
+    font-size: 10px;
+    padding: 12px 24px;
+    transition: all 0.1s;
+    border: 3px solid;
+    font-family: 'Press Start 2P', monospace;
+    text-transform: uppercase;
+    box-shadow: 3px 3px 0 #0a0a14;
+}
+
+.swagger-ui .btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #0a0a14;
+}
+
+.swagger-ui .btn.execute {
+    background: #00ff00;
+    color: #0a0a14;
+    border-color: #00ff00;
+}
+
+.swagger-ui .btn.execute:hover {
+    background: #00ff00;
+    box-shadow:
+        3px 3px 0 #0a0a14,
+        0 0 20px rgba(0, 255, 0, 0.6);
+}
+
+.swagger-ui .btn.cancel {
+    background: transparent;
+    border-color: #ff0066;
+    color: #ff0066;
+}
+
+.swagger-ui .btn.cancel:hover {
+    background: #ff0066;
+    color: #ffffff;
+}
+
+.swagger-ui .btn.authorize {
+    background: #ffd700;
+    border-color: #ffd700;
+    color: #0a0a14;
+}
+
+.swagger-ui .btn.authorize:hover {
+    box-shadow:
+        3px 3px 0 #0a0a14,
+        0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+/* Try it out button */
+.swagger-ui .try-out__btn {
+    background: transparent;
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    border-radius: 0;
+    padding: 8px 16px;
+    font-weight: 400;
+    font-size: 9px;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.swagger-ui .try-out__btn:hover {
+    background: #00ffff;
+    color: #0a0a14;
+}
+
+/* Input fields - Arcade terminals */
+.swagger-ui input[type=text],
+.swagger-ui input[type=password],
+.swagger-ui input[type=email],
+.swagger-ui textarea,
+.swagger-ui select {
+    background: #0a0a14;
+    border: 2px solid #00ffff;
+    color: #00ff00;
+    border-radius: 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-family: 'Press Start 2P', monospace;
+    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+.swagger-ui input[type=text]:focus,
+.swagger-ui input[type=password]:focus,
+.swagger-ui input[type=email]:focus,
+.swagger-ui textarea:focus,
+.swagger-ui select:focus {
+    border-color: #00ff00;
+    outline: none;
+    box-shadow:
+        inset 0 0 10px rgba(0, 255, 0, 0.2),
+        0 0 10px rgba(0, 255, 0, 0.4);
+}
+
+.swagger-ui textarea {
+    min-height: 120px;
+}
+
+/* Responses */
+.swagger-ui .responses-wrapper {
+    background: transparent;
+    padding: 0;
+    margin-top: 32px;
+}
+
+.swagger-ui .response-col_status {
+    color: #00ff00;
+    font-weight: 400;
+    font-size: 11px;
+}
+
+.swagger-ui .response-col_description {
+    color: #00ffff;
+    font-size: 10px;
+}
+
+.swagger-ui .response {
+    border: 2px solid #444466;
+    border-radius: 0;
+    background: #0a0a14;
+    padding: 20px;
+    margin: 12px 0;
+}
+
+/* Code blocks - Retro terminal */
+.swagger-ui .highlight-code {
+    background: #0a0a14 !important;
+    border: 2px solid #00ff00;
+    border-radius: 0;
+    padding: 16px;
+    box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.swagger-ui .microlight {
+    color: #00ff00;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    line-height: 2;
+}
+
+.swagger-ui pre {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+/* Models/Schemas */
+.swagger-ui .model-box {
+    background: #0a0a14;
+    border: 2px solid #ff00ff;
+    border-radius: 0;
+    padding: 20px;
+    margin: 12px 0;
+}
+
+.swagger-ui .model-title {
+    color: #ffd700;
+    font-weight: 400;
+    font-size: 11px;
+}
+
+.swagger-ui .model {
+    color: #00ffff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+}
+
+.swagger-ui .model-toggle {
+    color: #ff00ff;
+}
+
+/* Authorization modal */
+.swagger-ui .dialog-ux {
+    background: rgba(10, 10, 20, 0.95);
+}
+
+.swagger-ui .modal-ux {
+    background: #1a1a28;
+    border: 4px solid #ffd700;
+    border-radius: 0;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+.swagger-ui .modal-ux-header {
+    background: transparent;
+    border-bottom: 2px solid #ffd700;
+    padding: 24px;
+}
+
+.swagger-ui .modal-ux-header h3 {
+    color: #ffd700;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+}
+
+.swagger-ui .modal-ux-content {
+    padding: 24px;
+}
+
+/* Scrollbar - Retro style */
+.swagger-ui ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.swagger-ui ::-webkit-scrollbar-track {
+    background: #0a0a14;
+    border: 1px solid #444466;
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb {
+    background: #00ffff;
+    border: 1px solid #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb:hover {
+    background: #00ff00;
+    border-color: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+/* Links */
+.swagger-ui a {
+    color: #ff00ff;
+    text-decoration: none;
+}
+
+.swagger-ui a:hover {
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+}
+
+/* Filter */
+.swagger-ui .filter-container {
+    margin-bottom: 48px;
+}
+
+.swagger-ui .operation-filter-input {
+    background: #0a0a14;
+    border: 3px solid #ffd700;
+    color: #00ff00;
+    border-radius: 0;
+    padding: 12px 16px;
+    font-size: 11px;
+    width: 100%;
+    max-width: 500px;
+    font-family: 'Press Start 2P', monospace;
+    box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.swagger-ui .operation-filter-input:focus {
+    border-color: #00ffff;
+    outline: none;
+    box-shadow:
+        inset 0 0 10px rgba(0, 255, 255, 0.2),
+        0 0 15px rgba(0, 255, 255, 0.4);
+}
+
+.swagger-ui .operation-filter-input::placeholder {
+    color: #444466;
+}
+
+/* Loading animation */
+.swagger-ui .loading-container {
+    color: #ffd700;
+}
+
+.swagger-ui .loading-container::after {
+    content: '...';
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}
+
+/* Errors - Game over style */
+.swagger-ui .errors-wrapper {
+    background: #1a0a0a;
+    border: 3px solid #ff0066;
+    border-radius: 0;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: 0 0 20px rgba(255, 0, 102, 0.4);
+}
+
+.swagger-ui .errors-wrapper .error-wrapper {
+    color: #ff0066;
+    font-size: 10px;
+}
+
+/* Arcade coin counter style for status codes */
+.swagger-ui .response-col_status {
+    position: relative;
+}
+
+.swagger-ui .response-col_status::before {
+    content: '★';
+    margin-right: 8px;
+    color: #ffd700;
+}

@@ -1,0 +1,18 @@
+/* Fix only schema section toggle buttons */
+
+.swagger-ui .models-control {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #3b4151 !important;
+    border-radius: 4px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+}
+
+.swagger-ui .models-control:hover {
+    background: #f3f4f6 !important;
+    border-color: #9ca3af !important;
+    color: #1f2937 !important;
+}

@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bridge_postgres
+    environment:
+      POSTGRES_USER: bridge_user
+      POSTGRES_PASSWORD: bridge_password
+      POSTGRES_DB: bridge_aggregator
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bridge_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bridge_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bridge_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bridge_network
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bridge_api
+    environment:
+      - APP_ENV=development
+      - DEBUG=True
+      - DATABASE_URL=postgresql://bridge_user:bridge_password@postgres:5432/bridge_aggregator
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - SECRET_KEY=your-secret-key-change-in-production-at-least-32-chars-long
+      - ETHEREUM_RPC_URL=${ETHEREUM_RPC_URL:-https://eth.llamarpc.com}
+      - ARBITRUM_RPC_URL=${ARBITRUM_RPC_URL:-https://arb1.arbitrum.io/rpc}
+      - OPTIMISM_RPC_URL=${OPTIMISM_RPC_URL:-https://mainnet.optimism.io}
+      - POLYGON_RPC_URL=${POLYGON_RPC_URL:-https://polygon-rpc.com}
+      - BASE_RPC_URL=${BASE_RPC_URL:-https://mainnet.base.org}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+    networks:
+      - bridge_network
+    restart: unless-stopped
+
+  # Celery Worker (for background tasks)
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bridge_celery_worker
+    command: celery -A app.services.celery_app worker --loglevel=info
+    environment:
+      - APP_ENV=development
+      - DATABASE_URL=postgresql://bridge_user:bridge_password@postgres:5432/bridge_aggregator
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - SECRET_KEY=your-secret-key-change-in-production-at-least-32-chars-long
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+    networks:
+      - bridge_network
+    restart: unless-stopped
+
+  # Celery Beat (for scheduled tasks)
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bridge_celery_beat
+    command: celery -A app.services.celery_app beat --loglevel=info
+    environment:
+      - APP_ENV=development
+      - DATABASE_URL=postgresql://bridge_user:bridge_password@postgres:5432/bridge_aggregator
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - SECRET_KEY=your-secret-key-change-in-production-at-least-32-chars-long
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+    networks:
+      - bridge_network
+    restart: unless-stopped
+
+networks:
+  bridge_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
