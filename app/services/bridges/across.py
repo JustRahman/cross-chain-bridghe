@@ -132,12 +132,35 @@ class AcrossBridge(BaseBridge):
 
         # Extract fee information from Across API
         total_relay_fee = data.get("totalRelayFee", {})
-        relay_fee_pct = float(total_relay_fee.get("pct", "0.001"))
 
-        # Calculate fees in USD
-        # Convert amount from wei to token units (assuming 6 decimals for USDC)
-        amount_usd = float(route_params.amount) / 1e6
-        bridge_fee_usd = Decimal(str(round(amount_usd * relay_fee_pct, 2)))
+        # Calculate bridge fee properly
+        # The API returns fee in wei, we need to convert to USD
+        amount_usd = float(route_params.amount) / 1e6  # Assuming 6 decimals for USDC
+        relay_fee_pct = 0.001  # Default 0.1% fee
+
+        # Check if API returned the fee amount in wei
+        if "total" in total_relay_fee:
+            # Fee is in wei (same decimals as token)
+            fee_in_wei = float(total_relay_fee.get("total", "0"))
+            bridge_fee_usd = Decimal(str(round(fee_in_wei / 1e6, 2)))  # Convert to USD (6 decimals)
+            # Calculate percentage for metadata
+            if amount_usd > 0:
+                relay_fee_pct = (fee_in_wei / 1e6) / amount_usd
+        elif "pct" in total_relay_fee:
+            # Fee is a percentage (like "0.001" for 0.1%)
+            relay_fee_pct = float(total_relay_fee.get("pct", "0.001"))
+            # Only apply if it's a reasonable percentage (< 1.0 = 100%)
+            if relay_fee_pct < 1.0:
+                bridge_fee_usd = Decimal(str(round(amount_usd * relay_fee_pct, 2)))
+            else:
+                # Value is too large, it's probably in wei, not percentage
+                # Treat as wei and convert
+                bridge_fee_usd = Decimal(str(round(relay_fee_pct / 1e6, 2)))
+                if amount_usd > 0:
+                    relay_fee_pct = (relay_fee_pct / 1e6) / amount_usd
+        else:
+            # Fallback to estimated 0.1% fee
+            bridge_fee_usd = Decimal(str(round(amount_usd * 0.001, 2)))
 
         # Estimate gas costs based on chain
         source_chain_id = self._get_chain_id(route_params.source_chain)

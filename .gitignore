@@ -59,6 +59,8 @@ htmlcov/
 .tox/
 coverage.xml
 *.cover
+.mypy_cache/
+.ruff_cache/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -70,6 +72,14 @@ docker-compose.override.yml
 # Alembic
 alembic/versions/*.pyc
 
+# Redis
+dump.rdb
+appendonly.aof
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
 # Temporary files
 *.tmp
 temp/
@@ -78,3 +88,31 @@ tmp/
 # OS files
 Thumbs.db
 .DS_Store
+
+# Node modules (if frontend is added)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Unused/old documentation (keep only README.md)
+PROJECT_SUMMARY.md
+API_DOCUMENTATION.md
+DATA_SOURCES.md
+API_TEST_RESULTS.md
+API_REFERENCE.md
+IMPLEMENTATION_SUMMARY.md
+SETUP.md
+API_EXAMPLES_WITH_OUTPUT.md
+USAGE.md
+API_TEST_GUIDE.md
+API_ERRORS_SUMMARY.md
+EXAMPLE_OUTPUT.md
+INSTRUCTIONS2.md
+PROMOTION_STRATEGY.md
+USAGE_OVERVIEW.md
+GET_STARTED.md
+FEATURES.md
+INSTRUCTIONS.md
+API_EXAMPLES.md
+QUICK_START.md
+TESTING_GUIDE.md

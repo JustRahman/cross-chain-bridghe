@@ -123,7 +123,7 @@ class RouteDiscoveryEngine:
         self,
         bridge: BaseBridge,
         route_params: RouteParams,
-        timeout_seconds: int = 3
+        timeout_seconds: int = 6
     ) -> Optional[BridgeQuote]:
         """
         Query a single bridge with timeout.

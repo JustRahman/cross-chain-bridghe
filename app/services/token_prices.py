@@ -29,23 +29,44 @@ class TokenPriceService:
         self.binance_api = "https://data-api.binance.vision/api/v3"
         self.dia_api = "https://api.diadata.org/v1"
 
-        # CoinLore token ID mapping
+        # CoinLore token ID mapping (ID -> Symbol mapping for correct matching)
+        # Note: CoinLore IDs can be unreliable for some tokens, use Binance fallback
         self.coinlore_ids = {
             "USDC": "33285",
             "USDT": "518",
-            "DAI": "33536",
-            "WETH": "2396",
+            "DAI": "33285",  # Use USDC as proxy (stablecoin)
+            "WETH": "80",    # Use ETH for WETH
             "ETH": "80",
             "MATIC": "2496",
-            "BNB": "257",
             "AVAX": "44073",
             "FTM": "33830",
             "OP": "95797",
             "ARB": "128123",
             "WBTC": "5032",
-            "UNI": "33538",
-            "LINK": "1975",
-            "AAVE": "33834",
+            "UNI": "7083",   # Correct Uniswap ID
+            "AAVE": "7278",  # Correct Aave ID
+            # LINK and BNB use Binance fallback (CoinLore IDs are wrong)
+        }
+
+        # Reverse mapping for CoinLore ID -> Our Symbol (one ID can map to multiple symbols)
+        self.coinlore_id_to_symbol = {
+            "33285": "USDC",  # Also used for DAI (stablecoin proxy)
+            "518": "USDT",
+            "80": "ETH",      # Also used for WETH
+            "2496": "MATIC",
+            "44073": "AVAX",
+            "33830": "FTM",
+            "95797": "OP",
+            "128123": "ARB",
+            "5032": "WBTC",
+            "7083": "UNI",
+            "7278": "AAVE",
+        }
+
+        # Handle tokens that share the same CoinLore ID
+        self.token_aliases = {
+            "WETH": "ETH",  # WETH uses ETH price
+            "DAI": "USDC",  # DAI uses USDC price (both stablecoins)
         }
 
         # Binance trading pair mapping (symbol + USDT)
@@ -374,11 +395,13 @@ class TokenPriceService:
             if response.status_code == 200:
                 data = response.json()
 
-                # Map back to symbols
+                # Map back to symbols using ID-based matching (more reliable)
                 for coin in data:
-                    symbol = coin.get("symbol")
-                    if symbol in self.coinlore_ids:
-                        result[symbol] = {
+                    coin_id = coin.get("id")
+                    # Match by ID, not by symbol (CoinLore symbols can be ambiguous)
+                    if coin_id in self.coinlore_id_to_symbol:
+                        our_symbol = self.coinlore_id_to_symbol[coin_id]
+                        result[our_symbol] = {
                             "price": float(coin.get("price_usd", 0)),
                             "market_cap": float(coin.get("market_cap_usd", 0)) if coin.get("market_cap_usd") else None,
                             "volume_24h": float(coin.get("volume24", 0)) if coin.get("volume24") else None,
@@ -387,18 +410,43 @@ class TokenPriceService:
 
                         # Update cache
                         if coin.get("price_usd"):
-                            self.cache[symbol] = {
+                            self.cache[our_symbol] = {
                                 "price": float(coin.get("price_usd")),
                                 "timestamp": datetime.utcnow()
                             }
-                            self.last_update[symbol] = datetime.utcnow()
+                            self.last_update[our_symbol] = datetime.utcnow()
+
+                # Handle token aliases (WETH -> ETH, DAI -> USDC)
+                for alias, base_symbol in self.token_aliases.items():
+                    if base_symbol in result:
+                        result[alias] = result[base_symbol].copy()
+
+                # Get LINK and BNB from Binance (CoinLore IDs are unreliable)
+                for symbol in ["LINK", "BNB"]:
+                    if symbol not in result:
+                        pair = self.binance_pairs.get(symbol)
+                        if pair:
+                            try:
+                                url = f"{self.binance_api}/ticker/price"
+                                response = requests.get(url, params={"symbol": pair}, timeout=5)
+                                if response.status_code == 200:
+                                    data = response.json()
+                                    price = float(data.get("price", 0))
+                                    result[symbol] = {
+                                        "price": price,
+                                        "market_cap": None,
+                                        "volume_24h": None,
+                                        "price_change_24h": None
+                                    }
+                            except Exception as e:
+                                log.warning(f"Binance fallback failed for {symbol}: {e}")
 
         except Exception as e:
             log.error(f"Error fetching token prices sync: {e}")
 
             # Fallback to Binance for major tokens
             try:
-                for symbol in ["ETH", "BTC", "USDC", "USDT"]:
+                for symbol in ["ETH", "BTC", "USDC", "USDT", "LINK", "BNB"]:
                     if symbol == "USDT":
                         result[symbol] = {"price": 1.0, "market_cap": None, "volume_24h": None, "price_change_24h": None}
                         continue
